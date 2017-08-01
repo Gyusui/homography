@@ -22,7 +22,7 @@ def estimate_homography(points):                 #ホモグラフィ推定関数
 
     P = np.vstack(p)
     A = P[:, :8]
-    B = P[:, 8:9]
+    B = P[:, 8:]
 
     invA = np.linalg.inv(A)
     x = np.dot(invA, -B)
@@ -62,11 +62,18 @@ if __name__ == '__main__':
     points_p = np.vstack(points_p)
     points_s = np.array([[0, 0],
                          [p_width, 0],
-                         [p_width, p_height],
+                         [p_width, p_height],      #スクリーン座標系を作る(点の座標)じゅ
                          [0, p_height]])
     sp_pairs = np.hstack((points_s, points_p))
     H_ps = estimate_homography(sp_pairs)
     H_sp = np.linalg.inv(H_ps)
+
+
+    #自動座標調整、プロジェクタ実験の部分
+    cw_pairs = np.load("camera_worldPoints.txt") #カメラ、ワールド座標
+    H_wc = estimate_homography(cw_pairs)
+    H_cw = np.linalg.inv(H_wc)
+
 
     img = cv2.imread('flower_p.jpg')
     dst = cv2.warpPerspective(img, H_ps, (p_width, p_height))
