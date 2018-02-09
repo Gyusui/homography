@@ -38,19 +38,6 @@ def perspective_transform(H, point):        #Hを利用して、プロジェク�
     point = point.reshape(3)
     return point[:2]
 
-def readCamera():
-	cap = cv2.VideoCapture(0) #Videoを利用する
-	cap.grab()
-	while(cap.isOpened()):
-	    ret, frame = cap.read()
-	    cv2.imshow('frame',frame)
-	    if cv2.waitKey(1) & 0xFF == ord('q'):
-              cv2.imwrite("frame.png", frame)
-              break
-
-	cap.release()
-	cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     screen_id = 1
@@ -80,20 +67,6 @@ if __name__ == '__main__':
     sp_pairs = np.hstack((points_s, points_p))
     H_ps = estimate_homography(sp_pairs)
     H_sp = np.linalg.inv(H_ps)
-
-
-    #自動座標調整、プロジェクタ実験の部分
-    cw_pairs = np.loadtxt("cwpoints.txt") #カメラ、ワールド座標
-    H_wc = estimate_homography(cw_pairs)
-    H_cw = np.linalg.inv(H_wc)         #カメラ、ワールドのホモグラフィを求めた
-    readCamera()                        #以下はマーカー点の検出
-    image = cv2.imread("frame.png")
-    ret, corners = cv2.findChessboardCorners(image, (10, 7))
-    cv2.drawChessboardCorners(image,(10, 7),corners,ret)
-    #cv2.imshow("corners",image)
-
-
-
     img = cv2.imread('flower_p.jpg')
     dst = cv2.warpPerspective(img, H_ps, (p_width, p_height))
     window_name = 'projector'
@@ -105,4 +78,4 @@ if __name__ == '__main__':
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     cv2.imwrite('flower_s.png',dst)
-    #cv.WarpPerspective(src, dst, mapMatrix, flags=CV_INTER_LINEAR+CV_WARP_FILL_OUTLIERS, fillval=(0, 0, 0, 0))'''
+    #cv.WarpPerspective(src, dst, mapMatrix, flags=CV_INTER_LINEAR+CV_WARP_FILL_OUTLIERS, fillval=(0, 0, 0, 0))
